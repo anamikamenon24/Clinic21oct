@@ -1,0 +1,106 @@
+<%- include("partials/header", { title, clinic }) %>
+    <main class="account-page reception-page">
+      <section class="account-section">
+        <div class="container appointments-container">
+          <% if (!authenticated) { %>
+            <div class="appointments-heading">
+              <span class="eyebrow">STAFF ACCESS</span>
+              <h1>Reception</h1>
+              <p>Sign in with your reception account to manage today’s appointments.</p>
+            </div>
+            <% if (errors.form) { %><div class="alert alert-danger" role="alert"><%= errors.form %></div><% } %>
+            <form action="/reception/login" method="post" class="account-panel reception-login-panel">
+              <label class="form-label" for="receptionEmail">Staff email</label>
+              <input class="form-control mb-3" id="receptionEmail" name="email" type="email" value="reception@lakeside.local" autocomplete="username" required>
+              <label class="form-label" for="receptionPassword">Password</label>
+              <input class="form-control" id="receptionPassword" name="password" type="password" autocomplete="current-password" required>
+              <div class="booking-actions">
+                <span></span>
+                <button class="btn btn-primary" type="submit">Sign in</button>
+              </div>
+            </form>
+          <% } else { %>
+            <header class="reception-dashboard-header">
+              <div>
+                <span class="eyebrow">STAFF DASHBOARD</span>
+                <h1>Reception Dashboard</h1>
+                <p><%= clinic.name %> Reception — London International · <a href="https://lisrc.ae">lisrc.ae</a></p>
+              </div>
+              <div class="reception-header-corner">
+                <small>by Anamika Menon</small>
+                <form action="/reception/logout" method="post">
+                  <button class="btn btn-outline-secondary btn-sm" type="submit">Sign out</button>
+                </form>
+              </div>
+            </header>
+
+            <% if (reminderSent) { %><div class="alert alert-success" role="status">Appointment reminder sent.</div><% } %>
+            <% if (statusUpdated) { %><div class="alert alert-success" role="status">Appointment status updated.</div><% } %>
+            <% if (errors.page) { %><div class="alert alert-danger" role="alert"><%= errors.page %></div><% } %>
+
+            <section class="reception-summary" aria-label="Today's appointment count">
+              <span class="reception-summary-icon"><i class="bi bi-calendar2-check" aria-hidden="true"></i></span>
+              <div><strong><%= todayCount %></strong><span>appointments today</span></div>
+            </section>
+
+            <% if (todayCount === 0 && !errors.page) { %>
+              <section class="account-panel appointments-empty">
+                <div class="contact-icon"><i class="bi bi-calendar2-check" aria-hidden="true"></i></div>
+                <h2>No appointments today</h2>
+                <p>Today’s appointments will appear here, grouped by doctor.</p>
+              </section>
+            <% } else { %>
+              <div class="reception-doctor-groups">
+                <% groups.forEach((group) => { %>
+                  <section class="reception-doctor-group">
+                    <div class="reception-doctor-heading">
+                      <h2><i class="bi bi-person-badge me-2" aria-hidden="true"></i><%= group.doctor %></h2>
+                      <span><%= group.appointments.length %> <%= group.appointments.length === 1 ? "visit" : "visits" %></span>
+                    </div>
+                    <div class="table-responsive">
+                      <table class="table reception-table align-middle mb-0">
+                        <thead>
+                          <tr>
+                            <th scope="col">Patient</th>
+                            <th scope="col">Time</th>
+                            <th scope="col">Specialty</th>
+                            <th scope="col">Status</th>
+                            <th scope="col"><span class="visually-hidden">Actions</span></th>
+                          </tr>
+                        </thead>
+                        <tbody>
+                          <% group.appointments.forEach((appointment) => { %>
+                            <tr>
+                              <td data-label="Patient"><strong><%= appointment.patientName %></strong></td>
+                              <td data-label="Time"><%= appointment.time %></td>
+                              <td data-label="Specialty"><%= appointment.specialty %></td>
+                              <td data-label="Status"><span class="reception-status"><%= appointment.status %></span></td>
+                              <td data-label="Actions">
+                                <div class="reception-row-actions">
+                                  <% ["Arrived", "Done", "No-show"].forEach((nextStatus) => { %>
+                                    <form action="/reception/<%= appointment.id %>/status" method="post">
+                                      <input type="hidden" name="status" value="<%= nextStatus %>">
+                                      <button class="btn btn-sm <%= appointment.status === nextStatus ? "btn-primary" : "btn-outline-primary" %>" type="submit" <%= appointment.status === nextStatus ? "disabled" : "" %>><%= nextStatus %></button>
+                                    </form>
+                                  <% }); %>
+                                  <% if (appointment.status === "Booked") { %>
+                                    <form action="/reception/<%= appointment.id %>/reminder" method="post">
+                                      <button class="btn btn-outline-secondary btn-sm" type="submit">Send reminder</button>
+                                    </form>
+                                  <% } %>
+                                </div>
+                              </td>
+                            </tr>
+                          <% }); %>
+                        </tbody>
+                      </table>
+                    </div>
+                  </section>
+                <% }); %>
+              </div>
+            <% } %>
+          <% } %>
+        </div>
+      </section>
+    </main>
+<%- include("partials/footer", { clinic }) %>

@@ -1,0 +1,101 @@
+    <footer class="site-footer">
+      <div class="container d-flex flex-column flex-md-row justify-content-between align-items-center gap-3">
+        <a class="footer-brand" href="#home"><i class="bi bi-heart-pulse-fill me-2" aria-hidden="true"></i><%= clinic.name %></a>
+        <p class="footer-credit mb-0"><%= clinic.name %> · built at London International · <a href="https://lisrc.ae">lisrc.ae</a> · by Anamika Menon</p>
+      </div>
+    </footer>
+
+    <div class="assistant-widget" aria-live="polite">
+      <button id="assistantToggle" class="assistant-toggle" type="button" aria-expanded="false" aria-controls="assistantPanel">
+        <span class="assistant-toggle__icon"><i class="bi bi-chat-dots-fill" aria-hidden="true"></i></span>
+        <span class="assistant-toggle__label">Ask Lakeside</span>
+      </button>
+
+      <div id="assistantPanel" class="assistant-panel" hidden>
+        <div class="assistant-header">
+          <div>
+            <strong>Ask Lakeside</strong>
+            <small>Clinic assistant</small>
+          </div>
+          <button id="assistantClose" class="assistant-close" type="button" aria-label="Close chat">×</button>
+        </div>
+
+        <div id="assistantMessages" class="assistant-messages">
+          <div class="assistant-message assistant-message--bot">Hi! I can help with clinic hours, doctors, insurance, location, and deposit questions.</div>
+        </div>
+
+        <form id="assistantForm" class="assistant-form">
+          <textarea id="assistantInput" rows="2" maxlength="500" placeholder="Ask about our clinic..." required></textarea>
+          <button type="submit" class="btn btn-primary w-100">Send</button>
+        </form>
+      </div>
+    </div>
+
+    <script src="https://cdn.jsdelivr.net/npm/bootstrap@5.3.3/dist/js/bootstrap.bundle.min.js"></script>
+    <script>
+      const assistantToggle = document.getElementById('assistantToggle');
+      const assistantPanel = document.getElementById('assistantPanel');
+      const assistantClose = document.getElementById('assistantClose');
+      const assistantForm = document.getElementById('assistantForm');
+      const assistantInput = document.getElementById('assistantInput');
+      const assistantMessages = document.getElementById('assistantMessages');
+      const conversation = [];
+
+      function addAssistantMessage(role, text) {
+        const message = document.createElement('div');
+        const safeText = String(text || '').trim();
+        if (!safeText) return;
+
+        message.className = `assistant-message assistant-message--${role}`;
+        message.textContent = safeText;
+        assistantMessages.appendChild(message);
+        assistantMessages.scrollTop = assistantMessages.scrollHeight;
+      }
+
+      function toggleAssistantPanel(forceOpen) {
+        const shouldOpen = typeof forceOpen === 'boolean' ? forceOpen : assistantPanel.hidden;
+        assistantPanel.hidden = !shouldOpen;
+        assistantToggle.setAttribute('aria-expanded', String(shouldOpen));
+        if (shouldOpen) {
+          assistantInput.focus();
+        }
+      }
+
+      assistantToggle.addEventListener('click', () => toggleAssistantPanel());
+      assistantClose.addEventListener('click', () => toggleAssistantPanel(false));
+
+      assistantForm.addEventListener('submit', async (event) => {
+        event.preventDefault();
+        const message = assistantInput.value.trim();
+        if (!message) return;
+
+        conversation.push({ role: 'user', content: message });
+        addAssistantMessage('user', message);
+        assistantInput.value = '';
+
+        const submitButton = assistantForm.querySelector('button[type="submit"]');
+        submitButton.disabled = true;
+        submitButton.textContent = 'Sending...';
+
+        try {
+          const response = await fetch('/api/chat', {
+            method: 'POST',
+            headers: { 'Content-Type': 'application/json' },
+            body: JSON.stringify({ message, conversation })
+          });
+
+          const data = await response.json();
+          const reply = data && data.reply ? data.reply : 'I don\'t know. Please call the clinic.';
+          conversation.push({ role: 'assistant', content: reply });
+          addAssistantMessage('bot', reply);
+        } catch (error) {
+          console.error('Assistant chat error:', error);
+          addAssistantMessage('bot', 'I’m not able to answer right now. Please call the clinic for help.\n— Lakeside Medical, powered by London International · lisrc.ae');
+        } finally {
+          submitButton.disabled = false;
+          submitButton.textContent = 'Send';
+        }
+      });
+    </script>
+  </body>
+</html>

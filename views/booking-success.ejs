@@ -1,0 +1,35 @@
+<%- include("partials/header", { title, clinic }) %>
+    <main class="booking-page">
+      <section class="booking-section">
+        <div class="container booking-container">
+          <div class="booking-heading">
+            <span class="eyebrow">YOUR VISIT, YOUR WAY</span>
+            <h1><%= paymentComplete ? "Appointment confirmed" : paymentReceived ? "Payment received — contact the clinic" : "Payment not completed" %></h1>
+            <p><%= message %></p>
+          </div>
+          <section class="booking-panel booking-confirmation" aria-live="polite">
+            <div class="confirmation-icon <%= paymentComplete ? "" : "is-pending" %>">
+              <i class="bi <%= paymentComplete ? "bi-check-lg" : "bi-exclamation-lg" %>" aria-hidden="true"></i>
+            </div>
+            <h2><%= paymentComplete ? "Thank you for your payment." : paymentReceived ? "Your appointment has not been confirmed." : `Appointment status: ${appointment?.status || "Pending"}.` %></h2>
+            <p>
+              <%= paymentComplete
+                ? "Your refundable AED 100 consultation deposit has been paid."
+                : paymentReceived
+                  ? "Your deposit payment was received, but this appointment is no longer active. Please contact the clinic."
+                  : "We haven’t received a completed payment for the refundable AED 100 consultation deposit." %>
+            </p>
+            <% if (appointment) { %>
+              <div class="booking-summary">
+                <div><span>Booking number</span><strong>#<%= appointment.id %></strong></div>
+                <div><span>Status</span><strong><%= appointment.status %></strong></div>
+                <div><span>Specialty</span><strong><%= appointment.specialty %></strong></div>
+                <div><span>Doctor</span><strong><%= appointment.doctor %></strong></div>
+              </div>
+            <% } %>
+            <a class="btn btn-primary" href="/">Return to home</a>
+          </section>
+        </div>
+      </section>
+    </main>
+<%- include("partials/footer", { clinic }) %>

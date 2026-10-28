@@ -1,0 +1,27 @@
+<%- include("partials/header", { title, clinic }) %>
+    <main class="account-page">
+      <section class="account-section">
+        <div class="container account-container">
+          <div class="account-heading">
+            <span class="eyebrow">GOOD TO SEE YOU AGAIN</span>
+            <h1>Log in to your account</h1>
+            <p>Access and manage your clinic appointments.</p>
+          </div>
+          <form class="account-panel" action="/login" method="post">
+            <input type="hidden" name="returnTo" value="<%= returnTo %>">
+            <% if (errors.form) { %><div class="alert alert-danger" role="alert"><%= errors.form %></div><% } %>
+            <div class="mb-3">
+              <label class="form-label" for="loginEmail">Email</label>
+              <input class="form-control booking-input" id="loginEmail" name="email" type="email" maxlength="254" autocomplete="email" value="<%= values.email || "" %>" required>
+            </div>
+            <div class="mb-3">
+              <label class="form-label" for="loginPassword">Password</label>
+              <input class="form-control booking-input" id="loginPassword" name="password" type="password" autocomplete="current-password" required>
+            </div>
+            <button class="btn btn-primary w-100 account-submit" type="submit">Log in</button>
+            <p class="account-switch mb-0">New to the clinic? <a href="/register">Create an account</a></p>
+          </form>
+        </div>
+      </section>
+    </main>
+<%- include("partials/footer", { clinic }) %>

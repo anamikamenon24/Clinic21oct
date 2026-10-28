@@ -1,0 +1,48 @@
+<%- include("partials/header", { title, clinic }) %>
+    <main class="account-page">
+      <section class="account-section">
+        <div class="container appointments-container">
+          <div class="appointments-heading">
+            <span class="eyebrow">YOUR CARE, ALL IN ONE PLACE</span>
+            <h1>My Appointments</h1>
+            <p>Welcome, <%= currentUser.name %>. Here are your appointments, newest first.</p>
+          </div>
+          <% if (cancelled) { %><div class="alert alert-success" role="status">Your appointment has been cancelled.</div><% } %>
+          <% if (errors.page) { %><div class="alert alert-danger" role="alert"><%= errors.page %></div><% } %>
+          <% if (!appointments.length && !errors.page) { %>
+            <section class="account-panel appointments-empty">
+              <div class="contact-icon"><i class="bi bi-calendar2-check" aria-hidden="true"></i></div>
+              <h2>No appointments yet</h2>
+              <p>Your upcoming clinic visits will appear here.</p>
+              <a class="btn btn-primary" href="/booking">Book an appointment</a>
+            </section>
+          <% } else { %>
+            <div class="appointment-list">
+              <% appointments.forEach((appointment) => { %>
+                <article class="appointment-card">
+                  <div class="appointment-card-heading">
+                    <div>
+                      <span class="appointment-specialty"><%= appointment.specialty %></span>
+                      <h2><%= appointment.doctor %></h2>
+                    </div>
+                    <span class="appointment-status <%= appointment.status === "Cancelled" ? "is-cancelled" : "" %>"><%= appointment.status %></span>
+                  </div>
+                  <div class="appointment-details">
+                    <span><i class="bi bi-calendar3 me-2" aria-hidden="true"></i><%= appointment.formattedDateTime %></span>
+                    <span><i class="bi bi-person me-2" aria-hidden="true"></i><%= appointment.patientName %></span>
+                    <span><i class="bi bi-envelope me-2" aria-hidden="true"></i><%= appointment.patientEmail %></span>
+                  </div>
+                  <% if (appointment.status === "Booked") { %>
+                    <form action="/my-appointments/<%= appointment.id %>/cancel" method="post" class="appointment-cancel-form">
+                      <button class="btn btn-outline-danger btn-sm" type="submit">Cancel</button>
+                    </form>
+                  <% } %>
+                </article>
+              <% }); %>
+            </div>
+            <div class="appointments-action"><a class="btn btn-primary" href="/booking">Book another appointment</a></div>
+          <% } %>
+        </div>
+      </section>
+    </main>
+<%- include("partials/footer", { clinic }) %>

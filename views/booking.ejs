@@ -1,0 +1,149 @@
+<%- include("partials/header", { title, clinic }) %>
+    <main class="booking-page">
+      <section class="booking-section">
+        <div class="container booking-container">
+          <a class="booking-back-link" href="/"><i class="bi bi-arrow-left me-2" aria-hidden="true"></i>Back to home</a>
+          <div class="booking-heading">
+            <span class="eyebrow">YOUR VISIT, YOUR WAY</span>
+            <h1><%= confirmed ? booking.status === "Booked" ? "Appointment confirmed" : "Appointment saved — payment required" : step === 5 ? "Review your appointment" : "Book an appointment" %></h1>
+            <p><%= confirmed ? booking.status === "Booked" ? "Your deposit is paid and your visit is confirmed." : "Your appointment is Pending until the refundable AED 100 deposit is paid." : "A few simple steps and we’ll have your visit planned." %></p>
+          </div>
+
+          <% if (confirmed) { %>
+            <section class="booking-panel booking-confirmation" aria-live="polite">
+              <div class="confirmation-icon <%= booking.status === "Pending" ? "is-pending" : "" %>"><i class="bi <%= booking.status === "Pending" ? "bi-exclamation-lg" : "bi-check-lg" %>" aria-hidden="true"></i></div>
+              <h2>Thank you, <%= booking.name %>.</h2>
+              <% if (paymentError) { %><div class="alert alert-danger" role="alert"><%= paymentError %></div><% } %>
+              <p><%= booking.status === "Booked" ? "Your booking is confirmed. Please keep your booking number for reference." : "Your booking is saved, but payment was not completed. The appointment remains Pending." %></p>
+              <div class="booking-summary">
+                <div><span>Booking number</span><strong>#<%= booking.id %></strong></div>
+                <div><span>Refundable deposit</span><strong>AED 100</strong></div>
+                <div><span>Specialty</span><strong><%= booking.specialty %></strong></div>
+                <div><span>Doctor</span><strong><%= booking.doctor %></strong></div>
+                <div><span>Date</span><strong><%= booking.date %></strong></div>
+                <div><span>Time</span><strong><%= timeSlots.find((slot) => slot.value === booking.time).label %></strong></div>
+                <div><span>Status</span><strong><%= booking.status %></strong></div>
+                <div><span>Phone</span><strong><%= booking.phone %></strong></div>
+                <div><span>Email</span><strong><%= booking.email %></strong></div>
+              </div>
+              <a class="btn btn-primary" href="/">Return to home</a>
+            </section>
+          <% } else { %>
+            <div class="booking-progress" aria-label="Booking steps">
+              <% ["Specialty", "Doctor", "Date & time", "Your details", "Review"].forEach((label, index) => { %>
+                <div class="progress-step <%= step >= index + 1 ? "is-active" : "" %> <%= step === index + 1 ? "is-current" : "" %>">
+                  <span><%= index + 1 %></span><small><%= label %></small>
+                </div>
+              <% }); %>
+            </div>
+
+            <% if (errors.form) { %><div class="alert alert-danger" role="alert"><%= errors.form %></div><% } %>
+            <% if (step === 5) { %>
+              <section class="booking-panel">
+                <h2 class="booking-panel-title">Your appointment summary</h2>
+                <p class="booking-panel-intro">Check the details below before confirming.</p>
+                <div class="booking-summary">
+                  <div><span>Specialty</span><strong><%= booking.specialty %></strong></div>
+                  <div><span>Doctor</span><strong><%= booking.doctor %></strong></div>
+                  <div><span>Date</span><strong><%= booking.date %></strong></div>
+                  <div><span>Time</span><strong><%= timeSlots.find((slot) => slot.value === booking.time).label %></strong></div>
+                  <div><span>Patient</span><strong><%= booking.name %></strong></div>
+                  <div><span>Phone</span><strong><%= booking.phone %></strong></div>
+                  <div><span>Email</span><strong><%= booking.email %></strong></div>
+                </div>
+                <form action="/booking" method="post" class="booking-actions">
+                  <% Object.entries(booking).forEach(([key, value]) => { %>
+                    <input type="hidden" name="<%= key %>" value="<%= value %>">
+                  <% }); %>
+                  <input type="hidden" name="action" value="confirm">
+                  <a class="btn btn-outline-secondary" href="/booking">Start over</a>
+                  <button class="btn btn-primary" type="submit">Confirm booking <i class="bi bi-arrow-right ms-2" aria-hidden="true"></i></button>
+                </form>
+                <p class="booking-notice mb-0"><i class="bi bi-info-circle me-1" aria-hidden="true"></i>Confirming saves this appointment to the clinic booking database.</p>
+              </section>
+            <% } else { %>
+              <form action="/booking" method="post" class="booking-panel booking-form" id="bookingForm" novalidate>
+                <input type="hidden" name="action" value="review">
+                <section class="booking-step <%= step === 1 ? "is-visible" : "" %>" data-step="1" <%= step !== 1 ? "hidden" : "" %>>
+                  <h2 class="booking-panel-title">1. Choose a specialty</h2>
+                  <p class="booking-panel-intro">What would you like help with?</p>
+                  <div class="specialty-options">
+                    <% Object.keys(doctorsBySpecialty).forEach((specialty, index) => { %>
+                      <label class="specialty-option">
+                        <input type="radio" name="specialty" value="<%= specialty %>" <%= booking.specialty === specialty ? "checked" : "" %> <%= index === 0 ? "required" : "" %>>
+                        <span class="specialty-option-icon"><i class="bi <%= ["bi-clipboard2-pulse", "bi-ear", "bi-emoji-smile", "bi-heart-pulse"][index] %>" aria-hidden="true"></i></span>
+                        <span><strong><%= specialty %></strong><small><%= doctorsBySpecialty[specialty] %></small></span>
+                        <i class="bi bi-check-circle-fill specialty-option-check" aria-hidden="true"></i>
+                      </label>
+                    <% }); %>
+                  </div>
+                  <% if (errors.specialty) { %><p class="field-error"><%= errors.specialty %></p><% } %>
+                  <div class="booking-actions"><span></span><button class="btn btn-primary" type="button" data-next>Continue <i class="bi bi-arrow-right ms-2" aria-hidden="true"></i></button></div>
+                </section>
+
+                <section class="booking-step <%= step === 2 ? "is-visible" : "" %>" data-step="2" <%= step !== 2 ? "hidden" : "" %>>
+                  <h2 class="booking-panel-title">2. Choose your doctor</h2>
+                  <p class="booking-panel-intro">Select the doctor for your chosen specialty.</p>
+                  <label class="form-label" for="doctor">Doctor</label>
+                  <select class="form-select booking-input" id="doctor" name="doctor" required>
+                    <option value="">Choose a doctor</option>
+                    <% Object.entries(doctorsBySpecialty).forEach(([specialty, doctor]) => { %>
+                      <option value="<%= doctor %>" data-specialty="<%= specialty %>" <%= booking.doctor === doctor ? "selected" : "" %>><%= doctor %></option>
+                    <% }); %>
+                  </select>
+                  <% if (errors.doctor) { %><p class="field-error"><%= errors.doctor %></p><% } %>
+                  <div class="booking-actions"><button class="btn btn-outline-secondary" type="button" data-back>Back</button><button class="btn btn-primary" type="button" data-next>Continue <i class="bi bi-arrow-right ms-2" aria-hidden="true"></i></button></div>
+                </section>
+
+                <section class="booking-step <%= step === 3 ? "is-visible" : "" %>" data-step="3" <%= step !== 3 ? "hidden" : "" %>>
+                  <h2 class="booking-panel-title">3. Pick a date and time</h2>
+                  <p class="booking-panel-intro">Appointments are available Monday to Saturday, 9am–9pm.</p>
+                  <div class="row g-3">
+                    <div class="col-md-6">
+                      <label class="form-label" for="appointmentDate">Appointment date</label>
+                      <input class="form-control booking-input" id="appointmentDate" type="date" name="date" min="<%= clinicToday %>" value="<%= booking.date || "" %>" required>
+                      <% if (errors.date) { %><p class="field-error"><%= errors.date %></p><% } %>
+                    </div>
+                    <div class="col-md-6">
+                      <label class="form-label" for="appointmentTime">Available time</label>
+                      <select class="form-select booking-input" id="appointmentTime" name="time" required>
+                        <option value="">Choose a time</option>
+                        <% timeSlots.forEach((slot) => { %><option value="<%= slot.value %>" <%= booking.time === slot.value ? "selected" : "" %>><%= slot.label %></option><% }); %>
+                      </select>
+                      <% if (errors.time) { %><p class="field-error"><%= errors.time %></p><% } %>
+                    </div>
+                  </div>
+                  <p class="booking-hint"><i class="bi bi-info-circle me-1" aria-hidden="true"></i>We’re closed on Sundays. Choose a date from today onwards.</p>
+                  <div class="booking-actions"><button class="btn btn-outline-secondary" type="button" data-back>Back</button><button class="btn btn-primary" type="button" data-next>Continue <i class="bi bi-arrow-right ms-2" aria-hidden="true"></i></button></div>
+                </section>
+
+                <section class="booking-step <%= step === 4 ? "is-visible" : "" %>" data-step="4" <%= step !== 4 ? "hidden" : "" %>>
+                  <h2 class="booking-panel-title">4. Your details</h2>
+                  <p class="booking-panel-intro">How can we reach you about this visit?</p>
+                  <div class="mb-3">
+                    <label class="form-label" for="patientName">Patient name</label>
+                    <input class="form-control booking-input" id="patientName" type="text" name="name" maxlength="100" autocomplete="name" value="<%= booking.name || "" %>" required>
+                    <% if (errors.name) { %><p class="field-error"><%= errors.name %></p><% } %>
+                  </div>
+                  <div class="row g-3">
+                    <div class="col-md-6">
+                      <label class="form-label" for="patientPhone">Phone</label>
+                      <input class="form-control booking-input" id="patientPhone" type="tel" name="phone" maxlength="20" autocomplete="tel" value="<%= booking.phone || "" %>" required>
+                      <% if (errors.phone) { %><p class="field-error"><%= errors.phone %></p><% } %>
+                    </div>
+                    <div class="col-md-6">
+                      <label class="form-label" for="patientEmail">Email</label>
+                      <input class="form-control booking-input" id="patientEmail" type="email" name="email" maxlength="254" autocomplete="email" value="<%= booking.email || "" %>" <%= currentUser ? "readonly" : "" %> required>
+                      <% if (errors.email) { %><p class="field-error"><%= errors.email %></p><% } %>
+                    </div>
+                  </div>
+                  <div class="booking-actions"><button class="btn btn-outline-secondary" type="button" data-back>Back</button><button class="btn btn-primary" type="submit">Review appointment <i class="bi bi-arrow-right ms-2" aria-hidden="true"></i></button></div>
+                </section>
+              </form>
+            <% } %>
+          <% } %>
+        </div>
+      </section>
+    </main>
+    <script src="/js/booking.js"></script>
+<%- include("partials/footer", { clinic }) %>

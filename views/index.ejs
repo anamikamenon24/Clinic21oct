@@ -1,0 +1,127 @@
+<%- include("partials/header", { title, clinic }) %>
+    <main>
+      <section class="hero-section" id="home">
+        <div class="container">
+          <div class="row align-items-center gy-5">
+            <div class="col-lg-7">
+              <span class="eyebrow"><i class="bi bi-geo-alt-fill me-2" aria-hidden="true"></i>YOUR NEIGHBOURHOOD CLINIC IN <%= clinic.area.toUpperCase() %></span>
+              <h1>Feel better.<br><span>Live well.</span></h1>
+              <p class="hero-lead"><%= clinic.tagline %>. Thoughtful, expert healthcare for you and your family.</p>
+              <a class="btn btn-primary btn-lg hero-cta" href="/booking">Book an appointment <i class="bi bi-arrow-right ms-2" aria-hidden="true"></i></a>
+              <div class="hero-reassurance"><i class="bi bi-check-circle-fill" aria-hidden="true"></i> Care that puts you first, every day.</div>
+            </div>
+            <div class="col-lg-5">
+              <div class="hero-card">
+                <div class="hero-card-icon"><i class="bi bi-heart-pulse" aria-hidden="true"></i></div>
+                <p class="hero-card-label">HERE FOR YOUR HEALTH</p>
+                <h2>Expert hands.<br>Warm hearts.</h2>
+                <p>Personalised care and a friendly team, right in your community.</p>
+                <a href="#specialties">Explore our specialties <i class="bi bi-arrow-down-right ms-1" aria-hidden="true"></i></a>
+                <span class="hero-decoration hero-decoration-one"></span>
+                <span class="hero-decoration hero-decoration-two"></span>
+              </div>
+            </div>
+          </div>
+        </div>
+      </section>
+
+      <section class="section specialties-section" id="specialties">
+        <div class="container">
+          <div class="section-heading text-center">
+            <span class="eyebrow">CARE FOR EVERY YOU</span>
+            <h2>Our Specialties</h2>
+            <p>Trusted care for every stage of life, all under one roof.</p>
+          </div>
+          <div class="row g-4">
+            <div class="col-sm-6 col-lg-3">
+              <article class="specialty-card">
+                <div class="specialty-icon"><i class="bi bi-clipboard2-pulse" aria-hidden="true"></i></div>
+                <h3>General Physician</h3>
+                <p>Everyday health support, check-ups, and care tailored to you.</p>
+              </article>
+            </div>
+            <div class="col-sm-6 col-lg-3">
+              <article class="specialty-card">
+                <div class="specialty-icon"><i class="bi bi-ear" aria-hidden="true"></i></div>
+                <h3>ENT</h3>
+                <p>Expert care for your ear, nose, and throat health.</p>
+              </article>
+            </div>
+            <div class="col-sm-6 col-lg-3">
+              <article class="specialty-card">
+                <div class="specialty-icon"><i class="bi bi-emoji-smile" aria-hidden="true"></i></div>
+                <h3>Dentist</h3>
+                <p>Comfortable dental care to keep your smile healthy and bright.</p>
+              </article>
+            </div>
+            <div class="col-sm-6 col-lg-3">
+              <article class="specialty-card">
+                <div class="specialty-icon"><i class="bi bi-heart-pulse" aria-hidden="true"></i></div>
+                <h3>Cardiologist</h3>
+                <p>Dedicated heart health guidance, from prevention to ongoing care.</p>
+              </article>
+            </div>
+          </div>
+        </div>
+      </section>
+
+      <section class="about-section section" id="about">
+        <div class="container">
+          <div class="row align-items-center g-5">
+            <div class="col-lg-5">
+              <div class="about-art" aria-hidden="true">
+                <div class="about-art-circle"><i class="bi bi-hospital"></i></div>
+                <span class="about-badge"><i class="bi bi-heart-fill me-2"></i>Care, close to home</span>
+              </div>
+            </div>
+            <div class="col-lg-7">
+              <span class="eyebrow">A LITTLE ABOUT US</span>
+              <h2>Healthcare should feel human.</h2>
+              <p class="about-copy">At Lakeside Medical Clinic, we believe great healthcare starts with listening. Our caring team brings together trusted medical expertise and a personal touch, so you feel comfortable, informed, and cared for at every visit.</p>
+              <p class="about-copy">Conveniently located in JLT, we’re here to support the health and wellbeing of you and your family, close to where you live and work.</p>
+              <a class="text-link" href="#contact">Come and meet our team <i class="bi bi-arrow-right ms-1" aria-hidden="true"></i></a>
+            </div>
+          </div>
+        </div>
+      </section>
+
+      <section class="section contact-section" id="contact">
+        <div class="container">
+          <div class="section-heading text-center">
+            <span class="eyebrow">WE’RE HERE FOR YOU</span>
+            <h2>Let’s get you feeling better.</h2>
+            <p>Get in touch or drop by. We look forward to seeing you.</p>
+          </div>
+          <div class="row g-4 contact-grid">
+            <div class="col-md-4">
+              <article class="contact-card">
+                <div class="contact-icon"><i class="bi bi-geo-alt" aria-hidden="true"></i></div>
+                <h3>Visit us</h3>
+                <p><%= clinic.address %></p>
+                <a href="https://www.google.com/maps/search/?api=1&query=Cluster+X%2C+JLT%2C+Dubai">Get directions <i class="bi bi-arrow-up-right ms-1" aria-hidden="true"></i></a>
+              </article>
+            </div>
+            <div class="col-md-4">
+              <article class="contact-card">
+                <div class="contact-icon"><i class="bi bi-telephone" aria-hidden="true"></i></div>
+                <h3>Call us</h3>
+                <p>Our friendly team is happy to help.</p>
+                <a href="tel:+971400000000"><%= clinic.phone %></a>
+              </article>
+            </div>
+            <div class="col-md-4">
+              <article class="contact-card">
+                <div class="contact-icon"><i class="bi bi-clock" aria-hidden="true"></i></div>
+                <h3>Opening hours</h3>
+                <p><%= clinic.hours %></p>
+                <span class="closed-note"><i class="bi bi-moon me-1" aria-hidden="true"></i>Closed Sunday</span>
+              </article>
+            </div>
+          </div>
+          <div class="text-center contact-action">
+            <a class="btn btn-primary btn-lg" href="tel:+971400000000"><i class="bi bi-telephone me-2" aria-hidden="true"></i>Call to book your visit</a>
+          </div>
+        </div>
+      </section>
+    </main>
+<%- include("partials/footer", { clinic }) %>
