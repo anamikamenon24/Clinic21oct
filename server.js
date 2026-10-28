@@ -1,4 +1,5 @@
 const fs = require("node:fs");
+const crypto = require("node:crypto");
 const path = require("node:path");
 
 const envPath = path.join(__dirname, ".env");
@@ -19,11 +20,15 @@ const receptionRouter = require("./routes/reception");
 
 const app = express();
 const port = process.env.PORT || 3000;
-const sessionSecret = process.env.SESSION_SECRET;
+const sessionSecret = process.env.SESSION_SECRET
+  || (process.env.VERCEL ? crypto.randomBytes(32).toString("hex") : null);
 const receptionEmail = "reception@lakeside.local";
 
 if (!sessionSecret) {
   throw new Error("SESSION_SECRET must be set in the environment or .env file.");
+}
+if (process.env.VERCEL && !process.env.SESSION_SECRET) {
+  console.warn("SESSION_SECRET is unset. Set it in Vercel to keep sessions stable across function instances.");
 }
 
 app.set("view engine", "ejs");

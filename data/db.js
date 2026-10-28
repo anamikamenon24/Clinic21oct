@@ -1,9 +1,14 @@
 const fs = require("node:fs");
+const os = require("node:os");
 const path = require("node:path");
 const { DatabaseSync } = require("node:sqlite");
 
 const databasePath = path.resolve(
-  process.env.DB_PATH || path.join(__dirname, "lakeside.db"),
+  process.env.DB_PATH || (
+    process.env.VERCEL
+      ? path.join(os.tmpdir(), "lakeside.db")
+      : path.join(__dirname, "lakeside.db")
+  ),
 );
 
 fs.mkdirSync(path.dirname(databasePath), { recursive: true });
